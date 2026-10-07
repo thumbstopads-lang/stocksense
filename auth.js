@@ -3,6 +3,11 @@
 const crypto = require('node:crypto');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-in-production';
+// Fail fast in production: never boot with the dev fallback secret where real
+// user data lives. Local dev (no NODE_ENV=production) is unaffected.
+if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET must be set in production (refusing to start with dev fallback)');
+}
 const TOKEN_TTL_SEC = 7 * 24 * 3600; // 7 days
 
 function b64url(input) {
