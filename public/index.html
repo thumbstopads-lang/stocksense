@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StockSense</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ============ AUTH ============ -->
+<div id="auth-view" class="auth-wrap hidden">
+  <div class="auth-card">
+    <h1>📦 StockSense</h1>
+    <p class="muted">Inventory management for your business</p>
+    <div class="auth-tabs">
+      <button id="tab-login" class="active" type="button">Log in</button>
+      <button id="tab-register" type="button">Register</button>
+    </div>
+    <form id="login-form" class="stack">
+      <input id="login-email" type="email" placeholder="Email" required autocomplete="email">
+      <input id="login-password" type="password" placeholder="Password" required autocomplete="current-password">
+      <button class="btn primary" type="submit">Log in</button>
+    </form>
+    <form id="register-form" class="stack hidden">
+      <input id="reg-business" type="text" placeholder="Business name" required>
+      <input id="reg-email" type="email" placeholder="Email" required autocomplete="email">
+      <input id="reg-password" type="password" placeholder="Password (min 8 chars)" required minlength="8" autocomplete="new-password">
+      <button class="btn primary" type="submit">Create account</button>
+    </form>
+    <p id="auth-error" class="error hidden"></p>
+    <div class="demo-logins">
+      <p class="muted">Try a demo business — one click, no signup:</p>
+      <div class="demo-grid">
+        <button type="button" data-demo="kirana@demo">🏪 Kirana</button>
+        <button type="button" data-demo="pharmacy@demo">💊 Pharmacy</button>
+        <button type="button" data-demo="cafe@demo">☕ Cafe</button>
+        <button type="button" data-demo="salon@demo">💇 Salon</button>
+        <button type="button" data-demo="hardware@demo">🔧 Hardware</button>
+      </div>
+      <p class="muted small">Logins: kirana@demo / kirana123 · pharmacy@demo / pharmacy123 · cafe@demo / cafe123 · salon@demo / salon123 · hardware@demo / hardware123</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app-view" class="hidden">
+  <header class="topbar">
+    <div class="brand">📦 <span>StockSense</span> <span id="biz-name" class="biz"></span></div>
+    <nav id="main-nav">
+      <button data-view="dashboard" class="active" type="button">Dashboard</button>
+      <button data-view="inventory" type="button">Inventory</button>
+      <button data-view="reorder" type="button">Reorder</button>
+      <button data-view="pos" type="button">Purchase Orders</button>
+      <button data-view="suppliers" type="button">Suppliers</button>
+      <button data-view="categories" type="button">Categories</button>
+      <button data-view="history" type="button">History</button>
+      <button data-view="settings" type="button">Settings</button>
+    </nav>
+    <div class="top-actions">
+      <button id="theme-toggle" class="icon-btn" type="button" title="Toggle theme">🌙</button>
+      <button id="logout-btn" class="btn ghost" type="button">Log out</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Dashboard -->
+    <section id="view-dashboard" class="view">
+      <div class="stats" id="dash-stats"></div>
+      <h2>Recent activity</h2>
+      <div class="table-wrap"><table id="dash-movements">
+        <thead><tr><th>When</th><th>Item</th><th>Change</th><th>Qty after</th><th>Reason</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </section>
+
+    <!-- Inventory -->
+    <section id="view-inventory" class="view hidden">
+      <div class="toolbar">
+        <input id="inv-search" type="search" placeholder="Search name or SKU…">
+        <select id="inv-category"><option value="">All categories</option></select>
+        <select id="inv-status">
+          <option value="">All statuses</option>
+          <option value="ok">In stock</option>
+          <option value="low">Low</option>
+          <option value="out">Out</option>
+        </select>
+        <select id="inv-sort">
+          <option value="name">Sort: Name</option>
+          <option value="qty">Sort: Qty</option>
+          <option value="reorder_level">Sort: Reorder level</option>
+          <option value="updated_at">Sort: Updated</option>
+        </select>
+        <button id="inv-order" class="btn ghost" type="button" title="Toggle sort direction">↑</button>
+        <button id="add-item-btn" class="btn primary" type="button">+ Add item</button>
+      </div>
+      <div class="table-wrap"><table id="inv-table">
+        <thead><tr><th>Item</th><th>SKU</th><th>Category</th><th>Qty</th><th>Reorder at</th><th>Status</th><th>Cost</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </section>
+
+    <!-- Reorder -->
+    <section id="view-reorder" class="view hidden">
+      <p class="muted">Everything at or below its reorder level. Tick items to add them to a purchase order.</p>
+      <div class="toolbar">
+        <button id="reorder-select-all" class="btn ghost" type="button">Select all</button>
+        <button id="reorder-create-po" class="btn primary" type="button">Create purchase order</button>
+      </div>
+      <div class="table-wrap"><table id="reorder-table">
+        <thead><tr><th></th><th>Item</th><th>Qty</th><th>Reorder at</th><th>Supplier</th><th>Order qty</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </section>
+
+    <!-- Purchase orders -->
+    <section id="view-pos" class="view hidden">
+      <div class="toolbar"><button id="add-po-btn" class="btn primary" type="button">+ New purchase order</button></div>
+      <div id="po-list" class="cards"></div>
+    </section>
+
+    <!-- Suppliers -->
+    <section id="view-suppliers" class="view hidden">
+      <div class="toolbar"><button id="add-supplier-btn" class="btn primary" type="button">+ Add supplier</button></div>
+      <div class="table-wrap"><table id="supplier-table">
+        <thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Notes</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </section>
+
+    <!-- Categories -->
+    <section id="view-categories" class="view hidden">
+      <form id="add-category-form" class="toolbar">
+        <input id="new-category-name" placeholder="New category name" required>
+        <button class="btn primary" type="submit">Add</button>
+      </form>
+      <div id="category-list" class="chips"></div>
+    </section>
+
+    <!-- History -->
+    <section id="view-history" class="view hidden">
+      <div class="toolbar">
+        <select id="hist-item"><option value="">All items</option></select>
+        <select id="hist-limit">
+          <option value="25">25 rows</option>
+          <option value="50" selected>50 rows</option>
+          <option value="100">100 rows</option>
+        </select>
+        <button id="hist-refresh" class="btn ghost" type="button">Refresh</button>
+      </div>
+      <div class="table-wrap"><table id="history-table">
+        <thead><tr><th>When</th><th>Item</th><th>Change</th><th>Qty after</th><th>Reason</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </section>
+
+    <!-- Settings -->
+    <section id="view-settings" class="view hidden">
+      <form id="settings-form" class="stack settings-form">
+        <h2>Business profile</h2>
+        <label>Business name<input id="set-business" type="text"></label>
+        <label>Currency code<input id="set-currency" type="text" maxlength="3" placeholder="INR"></label>
+        <label>Default reorder level<input id="set-reorder" type="number" min="0" step="1"></label>
+        <h2>Custom item fields</h2>
+        <p class="muted">Add your own fields (e.g. brand, expiry, shelf) — they'll show up when adding or editing items.</p>
+        <div id="custom-field-rows"></div>
+        <button id="add-custom-field" class="btn ghost" type="button">+ Add field</button>
+        <button class="btn primary" type="submit">Save settings</button>
+      </form>
+    </section>
+  </main>
+</div>
+
+<!-- ============ MODALS ============ -->
+<div id="modal-backdrop" class="modal-backdrop hidden">
+  <div class="modal" role="dialog">
+    <h2 id="modal-title"></h2>
+    <div id="modal-body"></div>
+    <div id="modal-actions" class="modal-actions"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

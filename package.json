@@ -1,0 +1,19 @@
+{
+  "name": "stocksense",
+  "version": "0.1.0",
+  "description": "Stocksense — multi-tenant inventory management SaaS (Node.js + Express + SQLite/Postgres)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1",
+    "pg": "^8.23.1"
+  }
+}
